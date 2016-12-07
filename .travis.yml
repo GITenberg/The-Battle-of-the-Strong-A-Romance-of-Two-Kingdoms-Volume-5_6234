@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: PmmfxwUe/2ue0SlQyJoHXEGJLT+LiJ6IZJuyGspWsBtfJoq4mlLrT45bGY5ks2WrVNgi+0t3QVTmw0wj2PEjck6SMCQZxOZ01XJc8W2FH03nK25DeIXUEoINfpu3jtYPaSt4TWIKFFs/x8CeKG+BHhEil2eMZywgSCVaucRMr0CC2PoaPPa3gqJ4Jv3F3JgBtzdc0xJUr/yn0kR4jKj3nn1IvaBbYJdn6eTPGjebOqmD5sK/YQJzYSflsnk4sVNFq7auxzfjMsCTLU3hoWYWFbEEsvxM6hcxw8nCjJQk8ZhDDsyC2nkuuZ48pbHUIwaRJOwFgeITKPaJfqYOL2eF8QnVMS14e00fF/La55s9+lcvn/QoIlbnwEAlabnX+KBD4g5g4QmRyJ9Y8jMakxk2uwHhNCIPBHP2HlDSvhomNqEftAvCN8iE4VS2YTKegcLHODc9MvJcQeu/tJpTFQYLVT+2rJUuX2iGn/JBuqAggULB/w5sa6FIF/2bamtjVDpfDqLnXo2NoDba+Cvq0qytlZUJlamwNyVdFaf8DPSf8AbG5Q+SANKm4mHDXfxTUJAXHQFFouPGJllfpvUmggLwCLzB8WMAx4kDCW02sN7lhc4QauP4cf/p4SIXBiuv7zK4qmYvl81YYQQRHCplsS8mVBNO/ieUW0qksrOeaM794cY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/The-Battle-of-the-Strong-A-Romance-of-Two-Kingdoms-Volume-5_6234
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
